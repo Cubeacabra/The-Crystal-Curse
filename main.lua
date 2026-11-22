@@ -34,6 +34,8 @@ function love.load()
 
 	--Setup Maps/Camera
 	mainMenuMap = sti('maps/mainMenu.lua')
+	gameOverMap = sti('maps/gameOver.lua')
+	victoryMap = sti('maps/victory.lua')
 	lobsterVillageMap = sti('maps/LobsterVillageMap.lua')
 	crystalCaveMap = sti('maps/CrystalCave.lua')
 	currentMap = lobsterVillageMap;
@@ -108,9 +110,10 @@ function love.update(dt)
 	if (gameState == "Playing") then
 		currentLevel:update(dt, player, currentMap, cam)
 
-		if (player:getHealth() <= 0) then
-			player:restart();
-			currentLevel:restart();
+		if (player:getHealth() <= 0 or (player:getDieAfterTalk() and not narrator:isOpen())) then
+			gameState = "Game Over"
+			--player:restart();
+			--currentLevel:restart();
 		end
 
 		if (currentLevel:checkLevelDone() and not narrator:isOpen()) then
@@ -120,6 +123,11 @@ function love.update(dt)
 			currentMap = crystalCaveMap;
 			currentLevel:startup()
 		end
+		
+	end
+
+	if (currentLevel == crystalCave and currentLevel:getLevelComplete()) then
+		gameState = "Victory"
 	end
 
 end
@@ -131,13 +139,24 @@ function love.draw()
 	elseif (gameState == "Playing") then
 		currentLevel:draw(player, currentMap, cam)
 	elseif (gameState == "Game Over") then
+		mainMenuMap:drawLayer(gameOverMap.layers["Base"])
+		love.graphics.print("Press enter to restart the game", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() - 100)
+		currentLevel:cleanup()
 
+	elseif (gameState == "Victory") then
+		victoryMap:drawLayer(victoryMap.layers["Base"])
+		love.graphics.print("You Win!", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() / 2)
+		love.graphics.print("Press enter to restart the game", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() / 2 - 100)
 	end
 end
 
 
 function love.keypressed(key)
 	if (gameState == "Main Menu" and key == "return") then
+		gameState = "Playing"
+	elseif (gameState == "Game Over" and key == "return") then
+		player:restart();
+		currentLevel:restart();
 		gameState = "Playing"
 	end
 
@@ -147,6 +166,7 @@ function love.keypressed(key)
 	if key == 'space' then
 		player:setVy(player:getJumpForce())
 	end
+
 
 	--Narrator is open
 	if currentLevel:getNarrator():isOpen() then
@@ -169,6 +189,43 @@ function love.keypressed(key)
 	end
 end
 
+function love.gamepadpressed(joystick, button)
+	if button == "a" or button == "b" then
+		player:setVy(player:getJumpForce())
+	elseif button == "x" or button == "y" then
+		attack(currentLevel:getEnemies())	
+	end
+
+
+	--Narrator is open
+	if currentLevel:getNarrator():isOpen() then
+		--Do said action
+		if button == "a" then
+			currentLevel:getNarrator():onAction()
+
+			--Go to previous option
+		elseif button == "x" then
+			currentLevel:getNarrator():prevOption()
+
+			--Go to next Option
+		elseif button == "b" then
+			currentLevel:getNarrator():nextOption()
+		end
+	else
+		if (button == "a" or button == "b") and nearbyNPC then
+			currentLevel:getNarrator():startScript(nearbyNPC)
+		end
+	end
+
+	if (gameState == "Main Menu" and (button == "a" or button == "b")) then
+		gameState = "Playing"
+	elseif (gameState == "Game Over" and (button == "a" or button == "b")) then
+		player:restart();
+		currentLevel:restart();
+		gameState = "Playing"
+	end
+
+end
 
 function love.mousepressed(x, y, button)
 	if button == 1 then --1 = left click

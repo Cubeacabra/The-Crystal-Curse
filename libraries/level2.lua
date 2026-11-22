@@ -49,11 +49,17 @@ function level2.new(map, camera, narrator)
 	changeLevels = false
 
 
+	levelComplete = false
+
 	return self
 end
 
 function level2:checkLevelDone()
 	return changeLevels
+end
+
+function level2:cleanup()
+	bgMusic2:stop()
 end
 
 
@@ -67,6 +73,10 @@ end
 
 function level2:getNarrator() 
 	return self.narrator
+end
+
+function level2:getLevelComplete() 
+	return levelComplete
 end
 
 
@@ -111,7 +121,11 @@ function level2:update(dt, player, map, camera)
 	-- for (int i = allEnemies.size(); i >= 1; i--)
 	for i = #allLvl2Enemies, 1, -1 do
 		if (allLvl2Enemies[i].health <= 0) then
+			if (allLvl2Enemies[i].name == "King Shark") then
+				levelComplete = true
+			end
 			table.remove(allLvl2Enemies, i)
+			
 		end
 	end
 

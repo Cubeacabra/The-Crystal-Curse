@@ -63,7 +63,8 @@ function level1.new(map, camera, narrator)
 		storedTag = tag
 		if (tag == "Mayor Lobster Success") then
 			changeLevels = true
-
+		elseif (tag == "Mayor Lobster Failure") then
+			player:setDieAfterTalk(true)
 		end
 	end
 

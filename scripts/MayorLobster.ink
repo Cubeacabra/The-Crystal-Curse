@@ -17,5 +17,5 @@ You'll help us won't you? You'll go teach the sharks a lesson?
    -> END
    ** [No...]
    How unfortunate... I guess we're all doomed...
-                Having denied his quest, the lobster village was soon decimated by the sharks who then went to conquer the world...
+                Having denied his quest, the lobster village was soon decimated by the sharks who then went to conquer the world... # Mayor Lobster Failure
     -> END

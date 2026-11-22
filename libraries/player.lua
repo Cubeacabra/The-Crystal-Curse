@@ -30,7 +30,7 @@ function player.new(x, y, scaleFactor, sprite)
 	self.attackTimer = 0
 	self.health = 100
 	self.maxHealth = 100
-
+	self.dieAfterTalk = false
 
 	--Save starting values in case die
 	self.startingX = x
@@ -57,6 +57,9 @@ function player.new(x, y, scaleFactor, sprite)
 	self.direction = 'none'
 
 
+	--Joy Stick Stuff
+	local joyStick
+	useKeyboardControls = true
 
 	canMove = false
 
@@ -118,8 +121,17 @@ function player:getJumpForce()
 	return self.jumpForce
 end
 
+function player:getUseKeyboardControls() 
+	return useKeyboardControls
+end
 
+function player:getJoyStick() 
+	return joyStick
+end
 
+function player:getDieAfterTalk() 
+	return self.dieAfterTalk
+end
 
 
 
@@ -157,7 +169,17 @@ function player:setVy(vy)
 	self.vy = vy
 end
 
+function player:setDieAfterTalk(flag) 
+	self.dieAfterTalk = flag
+end
 
+
+
+
+function love.joystickadded(j)
+	joystick = j
+	useKeyboardControls = false
+end
 
 
 
@@ -176,7 +198,7 @@ end
 function player:update(dt, map, isTalking, cam)
 	--To Determine If Idle
 	local isMoving = false
-	--
+
 	--      --Determine if Dialogue Open
 	--    local isTalking = narrator:isOpen()
 
@@ -184,30 +206,54 @@ function player:update(dt, map, isTalking, cam)
 	local oldX, oldY = self.x, self.y
 
 	canMove = not isTalking
-	
+
 	--Only run movement code if player not in dialogue
 	if not isTalking then
-		--Move Right
-		if love.keyboard.isDown("d") then
-			--Set direction/anim first
-			self.direction = 'right'
-			self.anim = self.animations.right
-			--If there is no collision, update player position accordingly
-			if (collisionFunctions.checkCollisionX(oldX, self.x + self.speed, self, map)) then
-				self.x = self.x + self.speed
-				isMoving = true
+		if (useKeyboardControls) then
+			--Move Right
+			if love.keyboard.isDown("d") then
+				--Set direction/anim first
+				self.direction = 'right'
+				self.anim = self.animations.right
+				--If there is no collision, update player position accordingly
+				if (collisionFunctions.checkCollisionX(oldX, self.x + self.speed, self, map)) then
+					self.x = self.x + self.speed
+					isMoving = true
+				end
+
+
+				--Move Left
+			elseif love.keyboard.isDown("a") then
+				--Set direction/anim first
+				self.direction = 'left'
+				self.anim = self.animations.right
+				--If there is no collision, update player position accordingly
+				if (collisionFunctions.checkCollisionX(oldX, self.x - self.speed, self, map)) then
+					self.x = self.x - self.speed
+					isMoving = true
+				end
 			end
 
-
-			--Move Left
-		elseif love.keyboard.isDown("a") then
-			--Set direction/anim first
-			self.direction = 'left'
-			self.anim = self.animations.right
-			--If there is no collision, update player position accordingly
-			if (collisionFunctions.checkCollisionX(oldX, self.x - self.speed, self, map)) then
-				self.x = self.x - self.speed
-				isMoving = true
+		else 
+			if (joystick and joystick:isGamepad()) then
+				local stickX = joystick:getGamepadAxis("leftx")
+				if stickX > 0.2 then
+					self.direction = 'right'
+					self.anim = self.animations.right
+					--If there is no collision, update player position accordingly
+					if (collisionFunctions.checkCollisionX(oldX, self.x + self.speed, self, map)) then
+						self.x = self.x + self.speed
+						isMoving = true
+					end
+				elseif stickX < -0.2 then
+					self.direction = 'left'
+					self.anim = self.animations.right
+					--If there is no collision, update player position accordingly
+					if (collisionFunctions.checkCollisionX(oldX, self.x - self.speed, self, map)) then
+						self.x = self.x - self.speed
+						isMoving = true
+					end
+				end
 			end
 		end
 
@@ -303,7 +349,7 @@ function player:update(dt, map, isTalking, cam)
 end
 
 function player:draw()
---	love.graphics.print("direction is: " .. self.direction, 400, 300)
+	--	love.graphics.print("direction is: " .. self.direction, 400, 300)
 
 	local drawX = self.x
 	local scaleX = 3
@@ -313,7 +359,7 @@ function player:draw()
 		scaleX = -3
 	end
 
-	
+
 	self.anim:draw(self.spriteSheet, drawX, self.y, 0, scaleX, 3)
 	love.graphics.print("X= " .. self.x .. " Y= " .. self.y, 700, 100)
 end
@@ -339,6 +385,7 @@ function player:restart()
 	self.ay = 2500
 	self.attackTimer = 0
 	self.health = self.maxHealth
+	self.dieAfterTalk = false
 end
 
 
