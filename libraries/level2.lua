@@ -45,7 +45,7 @@ function level2.new(map, camera, narrator)
 
 	--Initialize Enemies
 	allLvl2Enemies = {}
-	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 3000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3"))
+	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 3000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 5))
 	changeLevels = false
 
 
@@ -92,7 +92,7 @@ function level2:update(dt, player, map, camera)
 
 	--Update all Enemies + Detect/Apply Player Damage
 	for _, character in pairs(allLvl2Enemies) do
-		character:update(dt)
+		character:update(dt, player)
 		--Player overlaps => take damage + "knockback"
 		if (collisionFunctions.AABB(player:getLeft(), player:getLeft() + player:getWidth(), player:getTop(), player:getTop() + player:getHeight(), character.x, character.x + character.width, character.y, character.y + character.height)) then
 			player:setHealth(math.max(player:getHealth() - 10, 0))
@@ -211,7 +211,7 @@ function level2:restart()
 
 	--Initialize Enemies
 	allLvl2Enemies = {}
-	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 3000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3"))
+	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 3000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 5))
 	
 	bgMusic2:stop()
 	bgMusic2:play()

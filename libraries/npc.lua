@@ -29,7 +29,7 @@ NPC.__index = NPC
 -- @param wanderY         how far (pixels) the NPC can wander up/down from its start
 -- @param health          health points for the NPC
 -- @param name		  name of the NPC
-function NPC.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWidth, spriteHeight, attackSound)
+function NPC.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWidth, spriteHeight, attackSound, scale)
 	local self = setmetatable({}, NPC)
 
 	-- Position
@@ -44,6 +44,8 @@ function NPC.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWi
 	self.damagedFrames = 0
 	self.damageTime = 50
 	self.attackSound = nil
+	self.direction = "left"
+
 	if (attackSound ~= nil) then
 		self.attackSound = love.audio.newSource(attackSound, "static")
 		self.attackSound:setVolume(0.4)
@@ -58,9 +60,10 @@ function NPC.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWi
 	local imgH = self.spriteSheet:getHeight()
 	self.grid = anim8.newGrid(spriteWidth, spriteHeight, imgW, imgH)
 
-	self.width = spriteWidth * 3
-	self.height = spriteHeight * 3
-
+	self.scale = scale
+	self.width = spriteWidth * scale
+	self.height = spriteHeight * scale
+	
 
 	self.animations = {
 		--down  = anim8.newAnimation(self.grid('1-4', 1), 0.2),
@@ -91,10 +94,19 @@ end
 function NPC:faceTarget()
 	local dx = self.targetX - self.x
 	local dy = self.targetY - self.y
+	
+	if (dx >= 0) then
+		self.direction = "right"
+	else
+		self.direction = "left"
+	end
+
+	self.anim = self.animations.right
+
 
 	-- Pick the axis with the larger difference
 	--if math.abs(dx) > math.abs(dy) then
-	self.anim = dx > 0 and self.animations.right or self.animations.left
+	--self.anim = dx > 0 and self.animations.right or self.animations.left
 	--end
 	--[[else
 	self.anim = dy > 0 and self.animations.down or self.animations.up
@@ -161,7 +173,15 @@ end
 
 --- Draw the NPC (call inside cam:attach / cam:detach).
 function NPC:draw()
-	self.anim:draw(self.spriteSheet, self.x, self.y, 0, 3)--nil, 5, nil, 6, 9)
+        local drawX = self.x
+        local scaleX = self.scale
+
+        if (self.direction == "left") then
+                drawX = self.x + self.width
+                scaleX = -1 * self.scale
+        end
+
+	self.anim:draw(self.spriteSheet, drawX, self.y, 0, scaleX, self.scale)--nil, 5, nil, 6, 9)
 end
 
 return NPC

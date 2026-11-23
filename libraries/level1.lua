@@ -26,7 +26,7 @@ function level1.new(map, camera, narrator)
 	--Initialize Each NPC
 	----function NPC.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWidth, spriteHeight, attackSound)
 
-	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
 
 
 
@@ -52,7 +52,10 @@ function level1.new(map, camera, narrator)
 
 	--Initialize Enemies
 	allLvl1Enemies = {}
-	table.insert(allLvl1Enemies, NPC.new('sprites/DemoShark.png', 720, 750, 80, 0, 120, "Demo Shark", 32, 32, nil))
+
+	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 720, 750, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
+
+
 
 
 	changeLevels = false
@@ -116,6 +119,7 @@ function level1:update(dt, player, map, camera)
 		--Player overlaps => take damage + "knockback"
 		if (collisionFunctions.AABB(player:getLeft(), player:getLeft() + player:getWidth(), player:getTop(), player:getTop() + player:getHeight(), character.x, character.x + character.width, character.y, character.y + character.height)) then
 			player:setHealth(math.max(player:getHealth() - 10, 0))
+			character.attackSound:play()
 			if (player:getDirection() == "left") then
 				player:setX(player:getLeft() + 100)
 			else
@@ -213,7 +217,7 @@ function level1:restart()
 
 
 	--Initialize Each NPC
-	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
 
 
 
@@ -234,7 +238,7 @@ function level1:restart()
 
 	--Initialize Enemies
 	allLvl1Enemies = {}
-	table.insert(allLvl1Enemies, NPC.new('sprites/DemoShark.png', 720, 750, 80, 0, 120, "Demo Shark", 32, 32, nil))
+	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 720, 750, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
 	
 	bgMusic:stop()
 	bgMusic:play()

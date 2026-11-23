@@ -29,7 +29,7 @@ sharkKing.__index = sharkKing
 -- @param wanderY         how far (pixels) the sharkKing can wander up/down from its start
 -- @param health          health points for the sharkKing
 -- @param name		  name of the sharkKing
-function sharkKing.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWidth, spriteHeight, attackSound)
+function sharkKing.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWidth, spriteHeight, attackSound, scale)
 	local self = setmetatable({}, sharkKing)
 
 	-- Position
@@ -45,6 +45,9 @@ function sharkKing.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, sp
 	self.damageTime = 50
 	self.attackSound = nil
 	self.direction = "left"
+	self.attackMode = "random"
+	self.val = 0
+	
 
 	if (attackSound ~= nil) then
 		self.attackSound = love.audio.newSource(attackSound, "static")
@@ -60,8 +63,9 @@ function sharkKing.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, sp
 	local imgH = self.spriteSheet:getHeight()
 	self.grid = anim8.newGrid(spriteWidth, spriteHeight, imgW, imgH)
 
-	self.width = spriteWidth * 3
-	self.height = spriteHeight * 3
+	self.scale = scale
+	self.width = spriteWidth * self.scale
+	self.height = spriteHeight * self.scale
 
 
 	self.animations = {
@@ -83,10 +87,18 @@ function sharkKing.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, sp
 	return self
 end
 
+
 --- Pick a new random target within the wander bounds.
-function sharkKing:pickTarget()
-	self.targetX = self.originX + math.random(-self.wanderX, self.wanderX)
-	self.targetY = self.originY + math.random(-self.wanderY, self.wanderY)
+function sharkKing:pickTarget(p)
+	if (math.random(1000) % 2 == 0) then 
+		self.targetX = self.originX + math.random(-self.wanderX, self.wanderX)
+		self.targetY = self.originY + math.random(-self.wanderY, self.wanderY)
+		self.attackMode = "random"
+	else
+		self.targetX = p:getLeft()
+		self.targetY = p:getTop()	
+		self.attackMode = "player"
+	end
 end
 
 --- Choose the animation that best matches the direction to the target.
@@ -135,14 +147,14 @@ end
 
 
 --- Update the sharkKing each frame.
-function sharkKing:update(dt)
+function sharkKing:update(dt, p)
 	if self.state == "paused" then
 		-- Stand still, show idle frame
 		--self.anim:gotoFrame(2)
 		self.anim = self.animations.dull
 		self.pauseTimer = self.pauseTimer + dt
 		if self.pauseTimer >= self.pauseDuration then
-			self:pickTarget()
+			self:pickTarget(p)
 			self:faceTarget()
 			self.state = "moving"
 		end
@@ -173,15 +185,19 @@ end
 --- Draw the sharkKing (call inside cam:attach / cam:detach).
 function sharkKing:draw()
         local drawX = self.x
-        local scaleX = 3
+        local scaleX = self.scale
 
         if (self.direction == "left") then
                 drawX = self.x + self.width
-                scaleX = -3
+                scaleX = -1 * self.scale
         end
 
 
-        self.anim:draw(self.spriteSheet, drawX, self.y, 0, scaleX, 3)
+		love.graphics.print("ATTACK: " .. self.attackMode .. " to X=" .. self.targetX .. " Y=" .. self.targetY, 300, 300)
+
+
+
+        self.anim:draw(self.spriteSheet, drawX, self.y, 0, scaleX, self.scale)
 
 
 --	self.anim:draw(self.spriteSheet, self.x, self.y, 0, 3)--nil, 5, nil, 6, 9)
