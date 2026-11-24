@@ -17,6 +17,8 @@ function love.load()
 
 
 	--NOTE: Music Code from Google AI
+	deathMusic = love.audio.newSource("audio/deathMusic.wav", "stream")
+	deathMusicState = "off"
 
 
 	-- 2. Load short sound effects as "static" (loads fully into RAM for instant playback)
@@ -36,7 +38,7 @@ function love.load()
 	mainMenuMap = sti('maps/mainMenu.lua')
 	gameOverMap = sti('maps/gameOver.lua')
 	victoryMap = sti('maps/victory.lua')
-	lobsterVillageMap = sti('maps/LobsterVillageMap.lua')
+	lobsterVillageMap = sti('maps/DamagedLobsterVillageMap.lua')
 	crystalCaveMap = sti('maps/CrystalCave.lua')
 	currentMap = lobsterVillageMap;
 
@@ -112,6 +114,8 @@ function love.update(dt)
 
 		if (player:getHealth() <= 0 or (player:getDieAfterTalk() and not narrator:isOpen())) then
 			gameState = "Game Over"
+			deathMusicState = "on"
+			deathMusic:play()
 			--player:restart();
 			--currentLevel:restart();
 		end
@@ -158,12 +162,17 @@ function love.keypressed(key)
 		player:restart();
 		currentLevel:restart();
 		gameState = "Playing"
+		if (deathMusicState == "on") then
+			deathMusicState = "off"
+			deathMusic:stop()
+		end
 	end
 
 	if key == "escape" then
 		love.event.quit()
 	end
-	if key == 'space' then
+	if key == 'space' and not player:getJumping() then
+		player:setJumping(true)
 		player:setVy(player:getJumpForce())
 	end
 
@@ -222,6 +231,10 @@ function love.gamepadpressed(joystick, button)
 	elseif (gameState == "Game Over" and (button == "a" or button == "b")) then
 		player:restart();
 		currentLevel:restart();
+		if (deathMusicState == "on") then
+			deathMusicState = "off"
+			deathMusic:stop()
+		end
 		gameState = "Playing"
 	end
 

@@ -27,6 +27,9 @@ function level1.new(map, camera, narrator)
 	----function NPC.new(spriteSheetPath, x, y, wanderX, wanderY, health, name, spriteWidth, spriteHeight, attackSound)
 
 	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.friendLobster = NPC.new('sprites/RegularLobsterSpriteSheet.png', 300, 770, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.basicLobster = NPC.new('sprites/RegularLobsterSpriteSheet.png', 700, 770, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.scientistLobster = NPC.new('sprites/ScientistLobsterSpriteSheet.png', 1000, 770, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
 
 
 
@@ -36,9 +39,21 @@ function level1.new(map, camera, narrator)
 
 
 	allLvl1Dialogue.mayorLobster = self.narrator:newCharacter("Mayor Lobster:", "sprites/LobsterMayor.png") -- name, sprite
+	allLvl1Dialogue.friendLobster = self.narrator:newCharacter("Luke the Lobster", "sprites/LobsterFriend.png") -- name, sprite
+	allLvl1Dialogue.basicLobster = self.narrator:newCharacter("Loretta the Lobster", "sprites/LobsterFriend.png") -- name, sprite
+	allLvl1Dialogue.scientistLobster = self.narrator:newCharacter("Scientist Lobster", "sprites/LobsterScientist.png") -- name, sprite
+
+
 
 
 	self.narrator:bindNPC(allLvl1NPCs.mayorLobster, allLvl1Dialogue.mayorLobster, "MayorLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+	self.narrator:bindNPC(allLvl1NPCs.friendLobster, allLvl1Dialogue.friendLobster, "FriendLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+	self.narrator:bindNPC(allLvl1NPCs.basicLobster, allLvl1Dialogue.basicLobster, "BasicLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+	self.narrator:bindNPC(allLvl1NPCs.scientistLobster, allLvl1Dialogue.scientistLobster, "ScientistLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+
+
+
+
 	OG_narrAddress = tostring(self.narrator)
 	OG_listAddress = tostring(self.narrator._boundNPCs)
 
@@ -53,7 +68,7 @@ function level1.new(map, camera, narrator)
 	--Initialize Enemies
 	allLvl1Enemies = {}
 
-	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 720, 750, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
+	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 800, 550, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
 
 
 
@@ -179,12 +194,12 @@ function level1:draw(player, map, camera)
 		end
 	end
 
-	love.graphics.print("# NPCS good alive are " .. #allLvl1NPCs, 200, 500)
-	if (tagCrapRunning) then
+	--love.graphics.print("# NPCS good alive are " .. #allLvl1NPCs, 200, 500)
+	--[[if (tagCrapRunning) then
 		love.graphics.print("storedTag is " .. tostring(storedTag), 200, 450)
 	else
 		love.graphics.print("TAG NO RUN", 200, 450)
-	end
+	end]]
 
 	--If there is NPC nearby, detect that and open dialogue
 	if (nearbyNPC) then
@@ -218,6 +233,9 @@ function level1:restart()
 
 	--Initialize Each NPC
 	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.friendLobster = NPC.new('sprites/RegularLobsterSpriteSheet.png', 300, 770, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.basicLobster = NPC.new('sprites/RegularLobsterSpriteSheet.png', 700, 770, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
+	allLvl1NPCs.scientistLobster = NPC.new('sprites/RegularLobsterSpriteSheet.png', 1000, 770, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
 
 
 
@@ -226,10 +244,16 @@ function level1:restart()
 	allLvl1Dialogue = {}
 
 
-	allLvl1Dialogue.mayorLobster = self.narrator:newCharacter("Mayor Lobster:", "sprites/LobsterMayor.png")--, name, sprite
+	allLvl1Dialogue.mayorLobster = self.narrator:newCharacter("Mayor Lobster", "sprites/LobsterMayor.png")--, name, sprite
+	allLvl1Dialogue.friendLobster = self.narrator:newCharacter("Luke the Lobster", "sprites/LobsterFriend.png") -- name, sprite
+	allLvl1Dialogue.basicLobster = self.narrator:newCharacter("Loretta the Lobster", "sprites/LobsterFriend.png") -- name, sprite
+	allLvl1Dialogue.scientistLobster = self.narrator:newCharacter("Scientist Lobster", "sprites/LobsterScientist.png") -- name, sprite
 
 
 	self.narrator:bindNPC(allLvl1NPCs.mayorLobster, allLvl1Dialogue.mayorLobster, "MayorLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+	self.narrator:bindNPC(allLvl1NPCs.friendLobster, allLvl1Dialogue.friendLobster, "FriendLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+	self.narrator:bindNPC(allLvl1NPCs.basicLobster, allLvl1Dialogue.basicLobster, "BasicLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
+	self.narrator:bindNPC(allLvl1NPCs.scientistLobster, allLvl1Dialogue.scientistLobster, "ScientistLobster") --bindNPC(NPC, NarratorCharacter, InkScriptName)
 
 
 	--Nearby NPC
@@ -238,7 +262,7 @@ function level1:restart()
 
 	--Initialize Enemies
 	allLvl1Enemies = {}
-	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 720, 750, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
+	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 800, 550, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
 	
 	bgMusic:stop()
 	bgMusic:play()

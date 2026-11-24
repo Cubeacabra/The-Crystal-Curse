@@ -22,7 +22,7 @@ function player.new(x, y, scaleFactor, sprite)
 	self.jumpForce = -1000
 	self.ay = 2500
 	self.speed = 5
-
+	self.isJumping = false
 
 	--Initialize Attack Variables
 	self.attackRange = 80
@@ -133,6 +133,9 @@ function player:getDieAfterTalk()
 	return self.dieAfterTalk
 end
 
+function player:getJumping() 
+	return self.isJumping
+end
 
 
 --[[
@@ -182,6 +185,9 @@ function love.joystickadded(j)
 end
 
 
+function player:setJumping(flag) 
+	self.isJumping = flag
+end
 
 --[[
 --
@@ -361,7 +367,7 @@ function player:draw()
 
 
 	self.anim:draw(self.spriteSheet, drawX, self.y, 0, scaleX, 3)
-	love.graphics.print("X= " .. self.x .. " Y= " .. self.y, 700, 100)
+	--love.graphics.print("X= " .. self.x .. " Y= " .. self.y, 700, 100)
 end
 
 function player:drawHealthBar()

@@ -58,8 +58,13 @@ function collision.checkCollisionY(oldY, newPotentialY, player, map)
 	for x = firstTileX, lastTileX do
 		if (player:getVy() > 0 and collision.platformAt(x * map.tilewidth, newPotentialY + player:getHeight(), map)) or (player:getVy() < 0 and collision.platformAt(x * map.tilewidth, newPotentialY, map) ) then
 			-- Collision detected!
+			--Change so player isn't jump no more ONLY if they collide on ground
+			if (player:getVy() > 0) then
+				player:setJumping(false);
+			end
 			player:setY(oldY)
 			player:setVy(0);
+
 		end
 
 	end
@@ -77,6 +82,10 @@ function collision.checkJumpThroughCollisionY(oldY, newPotentialY, player, map)
 	for x = firstTileX, lastTileX do
 		if (player:getVy() > 0 and collision.jumpThroughPlatformAt(x * map.tilewidth, newPotentialY + player:getHeight(), map)) then
 			-- Collision detected!
+			--Change so player isn't jump no more ONLY if they collide on ground
+			if (player:getVy() > 0) then
+				player:setJumping(false);
+			end
 			player:setY(oldY)
 			player:setVy(0);
 		end

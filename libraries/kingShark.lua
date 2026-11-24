@@ -142,7 +142,7 @@ end
 
 function sharkKing:drawInteractionPrompt()
         love.graphics.setColor(1,1,1)
-        love.graphics.print("Press E to Talk", self.x - 25, self.y - 25)
+        --love.graphics.print("Press E to Talk", self.x - 25, self.y - 25)
 end
 
 
@@ -193,7 +193,7 @@ function sharkKing:draw()
         end
 
 
-		love.graphics.print("ATTACK: " .. self.attackMode .. " to X=" .. self.targetX .. " Y=" .. self.targetY, 300, 300)
+		--love.graphics.print("ATTACK: " .. self.attackMode .. " to X=" .. self.targetX .. " Y=" .. self.targetY, 300, 300)
 
 
 
