@@ -115,14 +115,13 @@ end
 
 
 function level1:update(dt, player, map, camera)
-	narr3 = tostring(self.narrator)
-	list3 = tostring(self.narrator._boundNPCs)
-
 	local isTalking = self.narrator:isOpen()
 
 	--LUA NOTE: the '_' before 'character' means we no need the key, just the value
+	charCount = 0
 	--Update all NPCS
 	for _, character in pairs(allLvl1NPCs) do
+		charCount = charCount + 1
 		character:update(dt)
 		--myX = character.x
 		--myY = character.y
@@ -132,21 +131,24 @@ function level1:update(dt, player, map, camera)
 	for _, character in pairs(allLvl1Enemies) do
 		character:update(dt)
 		--Player overlaps => take damage + "knockback"
-		if (collisionFunctions.AABB(player:getLeft(), player:getLeft() + player:getWidth(), player:getTop(), player:getTop() + player:getHeight(), character.x, character.x + character.width, character.y, character.y + character.height)) then
+		if ((player:getDamageCooldown() <= 0) and collisionFunctions.AABB(player:getLeft(), player:getLeft() + player:getWidth(), player:getTop(), player:getTop() + player:getHeight(), character.x, character.x + character.width, character.y, character.y + character.height)) then
 			player:setHealth(math.max(player:getHealth() - 10, 0))
 			character.attackSound:play()
-			if (player:getDirection() == "left") then
+		--[[	if (player:getDirection() == "left") then
 				player:setX(player:getLeft() + 100)
 			else
 				player:setX(player:getLeft() - 100)
 			end
+			]]
+
+			player:setInvFrames()
 		end
 	end
 
 	--Try to locate an NPC but only if you aren't talking
 	if isTalking then
 		nearbyNPC = nil
-	else
+	elseif charCount > 0 then
 		nearbyNPC = NPC.findNearestNPC(self.narrator, player)
 	end
 
@@ -180,7 +182,23 @@ function level1:draw(player, map, camera)
 	map:drawLayer(map.layers["Background"])
 	map:drawLayer(map.layers["Buildings"])
 	map:drawLayer(map.layers["Foliage"])
-	player:draw()
+
+	if (player:getDamageCooldown() > 0) then
+		local testVal = math.floor(10 * player:getDamageCooldown())
+		if (testVal % 4 == 0 or testVal % 4 == 1) then
+			love.graphics.setColor(1, 127/255, 127/255)
+			player:draw()
+			love.graphics.setColor(1, 1, 1)
+		else
+			love.graphics.setColor(1, 1, 1)
+			player:draw()
+		end
+
+	else
+		player:draw()
+	end
+
+	love.graphics.print(player:getDamageCooldown(), 400, 400)
 
 	--Draw NPCs
 	for _, character in pairs(allLvl1NPCs) do
@@ -190,15 +208,27 @@ function level1:draw(player, map, camera)
 	--Draw Enemies
 	for _, character in pairs(allLvl1Enemies) do
 		if (character.health >= 0) then
+			if (character.damagedSinceLastFrame and (character.damagedFrames <= character.damageTime)) then
+				love.graphics.setColor(1, 0, 0)
+				character.damagedFrames = character.damagedFrames + 1
+				if (character.damagedFrames >= character.damageTime) then
+					character.damagedFrames = 0
+					character.damagedSinceLastFrame = false
+				end
+			end
 			character:draw()
+			love.graphics.setColor(1, 1, 1)
 		end
+		--[[if (character.health >= 0) then
+		character:draw()
+		end]]
 	end
 
 	--love.graphics.print("# NPCS good alive are " .. #allLvl1NPCs, 200, 500)
 	--[[if (tagCrapRunning) then
-		love.graphics.print("storedTag is " .. tostring(storedTag), 200, 450)
+	love.graphics.print("storedTag is " .. tostring(storedTag), 200, 450)
 	else
-		love.graphics.print("TAG NO RUN", 200, 450)
+	love.graphics.print("TAG NO RUN", 200, 450)
 	end]]
 
 	--If there is NPC nearby, detect that and open dialogue
@@ -230,6 +260,8 @@ function level1:restart()
 	--ReInitialize NPC list
 	allLvl1NPCs = {}
 
+
+	self.narrator._boundNPCs = {}
 
 	--Initialize Each NPC
 	allLvl1NPCs.mayorLobster = NPC.new('sprites/MayorLobsterSpriteSheet.png', 900, 190, 70, 0, 1000, "Mayor Lobster", 32, 32, nil, 3) --Spritesheet, x, y, wanderx, wandery, health, name
@@ -263,7 +295,7 @@ function level1:restart()
 	--Initialize Enemies
 	allLvl1Enemies = {}
 	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 800, 550, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
-	
+
 	bgMusic:stop()
 	bgMusic:play()
 

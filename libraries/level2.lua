@@ -2,7 +2,7 @@ local level2 = {}
 
 level2.__index = level2
 NPC = require 'libraries/npc'
---narrator = require 'libraries/narrator'
+narrator = require 'libraries/newNarrator'
 collisionFunctions = require 'libraries/collision'
 sharkKing = require 'libraries/kingShark'
 
@@ -29,7 +29,6 @@ function level2.new(map, camera, narrator)
 
 
 
-
 	--Initialize Narrator Character list
 	allLvl2Dialogue = {}
 
@@ -45,7 +44,7 @@ function level2.new(map, camera, narrator)
 
 	--Initialize Enemies
 	allLvl2Enemies = {}
-	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 3000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 5))
+	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 2000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 4))
 	changeLevels = false
 
 
@@ -94,14 +93,16 @@ function level2:update(dt, player, map, camera)
 	for _, character in pairs(allLvl2Enemies) do
 		character:update(dt, player)
 		--Player overlaps => take damage + "knockback"
-		if (collisionFunctions.AABB(player:getLeft(), player:getLeft() + player:getWidth(), player:getTop(), player:getTop() + player:getHeight(), character.x, character.x + character.width, character.y, character.y + character.height)) then
+		if ((player:getDamageCooldown() <= 0) and collisionFunctions.AABB(player:getLeft(), player:getLeft() + player:getWidth(), player:getTop(), player:getTop() + player:getHeight(), character.x, character.x + character.width, character.y, character.y + character.height)) then
 			player:setHealth(math.max(player:getHealth() - 10, 0))
 			character.attackSound:play()
-			if (player:getDirection() == "left") then
+			--player:setVy(-1 * player:getJumpForce())
+		--[[	if (player:getDirection() == "left") then
 				player:setX(player:getLeft() + 100)
 			else
 				player:setX(player:getLeft() - 100)
-			end
+			end]]
+			player:setInvFrames()
 		end
 	end
 
@@ -147,7 +148,24 @@ function level2:draw(player, map, camera)
 	map:drawLayer(map.layers["Background"])
 	map:drawLayer(map.layers["Buildings"])
 	map:drawLayer(map.layers["Foliage"])
-	player:draw()
+	
+
+
+	if (player:getDamageCooldown() > 0) then
+		local testVal = math.floor(10 * player:getDamageCooldown())
+		if (testVal % 4 == 0 or testVal % 4 == 1) then
+			love.graphics.setColor(1, 127/255, 127/255)
+			player:draw()
+			love.graphics.setColor(1, 1, 1)
+		else
+			love.graphics.setColor(1, 1, 1)
+			player:draw()
+		end
+
+	else
+		player:draw()
+	end
+
 
 	--Draw NPCs
 	for _, character in pairs(allLvl2NPCs) do
@@ -176,7 +194,7 @@ function level2:draw(player, map, camera)
 	--If there is NPC nearby, detect that and open dialogue
 	if (nearbyNPC) then
 		nearbyNPC:drawInteractionPrompt()
-		--drawInteractionPrompt(nearbyNPC)
+		love.graphics.print(nearbyNPC.name, 400, 400)
 	end
 
 	--Detatch camera for all this
@@ -196,6 +214,7 @@ function level2:startup()
 	bgMusic2:play()
 	player:setX(200)
 	player:setY(400)
+	narrator._boundNPCs = {}
 end
 
 function level2:restart()
@@ -211,7 +230,7 @@ function level2:restart()
 
 	--Initialize Enemies
 	allLvl2Enemies = {}
-	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 3000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 5))
+	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 2000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 4))
 	
 	bgMusic2:stop()
 	bgMusic2:play()

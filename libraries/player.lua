@@ -26,7 +26,7 @@ function player.new(x, y, scaleFactor, sprite)
 
 	--Initialize Attack Variables
 	self.attackRange = 80
-	self.attackCooldown = 0.5
+	self.attackCooldown = 1
 	self.attackTimer = 0
 	self.health = 100
 	self.maxHealth = 100
@@ -61,6 +61,9 @@ function player.new(x, y, scaleFactor, sprite)
 	local joyStick
 	useKeyboardControls = true
 
+
+	local stickNavigate = false
+	
 	canMove = false
 
 	return self
@@ -137,6 +140,10 @@ function player:getJumping()
 	return self.isJumping
 end
 
+function player:getDamageCooldown() 
+	return self.attackTimer
+end
+
 
 --[[
 
@@ -189,6 +196,11 @@ function player:setJumping(flag)
 	self.isJumping = flag
 end
 
+function player:setInvFrames() 
+	self.attackTimer = self.attackCooldown
+end
+
+
 --[[
 --
 -- Purpose: update things that happen every frame (backend stuff only, no drawing)
@@ -210,6 +222,30 @@ function player:update(dt, map, isTalking, cam)
 
 	--Store For Reset Position Upon Collision
 	local oldX, oldY = self.x, self.y
+
+
+
+
+
+	if (joystick and joystick:isGamepad()) then
+		local stickY = joystick:getGamepadAxis("lefty")
+		if not stickNavigate then	
+			--Go to previous option
+			if stickY > 0.9 then
+				currentLevel:getNarrator():prevOption()
+				stickNavigate = true
+			--Go to next Option
+			elseif stickY < -0.9 then
+				currentLevel:getNarrator():nextOption()
+				stickNavigate = true
+			end
+			
+		elseif math.abs(stickY) < 0.2 then	
+			stickNavigate = false	
+		end
+	end
+
+
 
 	canMove = not isTalking
 
@@ -260,6 +296,7 @@ function player:update(dt, map, isTalking, cam)
 						isMoving = true
 					end
 				end
+
 			end
 		end
 
@@ -278,6 +315,10 @@ function player:update(dt, map, isTalking, cam)
 
 		--Update player y
 		self.y = self.y + self.vy * dt
+
+		if (self.attackTimer > 0) then
+			self.attackTimer = self.attackTimer - dt
+		end
 
 
 	end --End branch about only move when not talking
@@ -381,6 +422,8 @@ function player:drawHealthBar()
 
 	--Make color white again (default) so no tint stuff
 	love.graphics.setColor(1, 1, 1)
+
+	--love.graphics.print(self.attackTimer, 200, 200)
 
 end
 

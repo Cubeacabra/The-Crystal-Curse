@@ -19,7 +19,8 @@ function love.load()
 	--NOTE: Music Code from Google AI
 	deathMusic = love.audio.newSource("audio/deathMusic.wav", "stream")
 	deathMusicState = "off"
-
+	deathMusic:setLooping(true)
+	
 
 	-- 2. Load short sound effects as "static" (loads fully into RAM for instant playback)
 	clickSound = love.audio.newSource("audio/bonk.mp3", "static")
@@ -149,8 +150,8 @@ function love.draw()
 
 	elseif (gameState == "Victory") then
 		victoryMap:drawLayer(victoryMap.layers["Base"])
-		love.graphics.print("You Win!", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() / 2)
-		love.graphics.print("Press enter to restart the game", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() / 2 - 100)
+		currentLevel:cleanup()
+		love.graphics.print("Press enter to restart the game", love.graphics:getWidth() / 2 - 140, love.graphics:getHeight() / 2 + 225)
 	end
 end
 
@@ -199,7 +200,8 @@ function love.keypressed(key)
 end
 
 function love.gamepadpressed(joystick, button)
-	if button == "a" or button == "b" then
+	if (button == "a" or button == "b") and not player:getJumping() then
+		player:setJumping(true)
 		player:setVy(player:getJumpForce())
 	elseif button == "x" or button == "y" then
 		attack(currentLevel:getEnemies())	
@@ -221,7 +223,7 @@ function love.gamepadpressed(joystick, button)
 			currentLevel:getNarrator():nextOption()
 		end
 	else
-		if (button == "a" or button == "b") and nearbyNPC then
+		if (button == "a" or button == "b") and gameState == "Playing" and nearbyNPC then
 			currentLevel:getNarrator():startScript(nearbyNPC)
 		end
 	end
