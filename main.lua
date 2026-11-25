@@ -122,10 +122,13 @@ function love.update(dt)
 		end
 
 		if (currentLevel:checkLevelDone() and not narrator:isOpen()) then
-			currentLevel:toggleLevelDone()
+			--currentLevel:toggleLevelDone()
 			currentLevel:cleanup()
 			currentLevel = crystalCave
 			currentMap = crystalCaveMap;
+			if currentLevel:checkLevelDone() then
+				currentLevel:restart()
+			end
 			currentLevel:startup()
 		end
 		
@@ -140,7 +143,11 @@ end
 function love.draw()
 	if (gameState == "Main Menu") then
 		mainMenuMap:drawLayer(mainMenuMap.layers["Base"])
-		love.graphics.print("Press enter to start the game", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() / 2)
+		if (player:getUseKeyboardControls()) then
+			love.graphics.print("Press enter to start the game", love.graphics:getWidth() / 2 - 100, love.graphics:getHeight() / 2)
+		else
+			love.graphics.print("Press right or bottom button to start the game", love.graphics:getWidth() / 2 - 150, love.graphics:getHeight() / 2)
+		end
 	elseif (gameState == "Playing") then
 		currentLevel:draw(player, currentMap, cam)
 	elseif (gameState == "Game Over") then
@@ -167,6 +174,15 @@ function love.keypressed(key)
 			deathMusicState = "off"
 			deathMusic:stop()
 		end
+	elseif (gameState == "Victory" and key == "return") then
+		crystalCave:setLevelComplete()
+		crystalCave:toggleLevelDone()
+		currentLevel = lobsterVillage
+		currentMap = lobsterVillageMap
+		player:restart()
+		lobsterVillage:restart()
+		gameState = "Playing"
+
 	end
 
 	if key == "escape" then
@@ -238,6 +254,14 @@ function love.gamepadpressed(joystick, button)
 			deathMusic:stop()
 		end
 		gameState = "Playing"
+	elseif (gameState == "Victory" and (button == "a" or button == "b")) then
+		currentLevel = lobsterVillage
+		currentMap = lobsterVillageMap
+		player:restart()
+		currentLevel:restart()
+		gameState = "Playing"
+		crystalCave:setLevelComplete()
+		--crystalCave:toggleLevelDone()
 	end
 
 end

@@ -129,9 +129,13 @@ function NPC.findNearestNPC(narrator, player)
 	return closest
 end
 
-function NPC:drawInteractionPrompt()
+function NPC:drawInteractionPrompt(p)
 	love.graphics.setColor(1,1,1)
-	love.graphics.print("Press E to Talk", self.x + 10, self.y - 25)
+	if (p:getUseKeyboardControls()) then
+		love.graphics.print("Press E to Talk", self.x + 10, self.y - 25)
+	else
+		love.graphics.print("Press Right/Bottom Button to Talk", self.x + 10, self.y - 25)
+	end
 end
 
 

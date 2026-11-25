@@ -78,6 +78,9 @@ function level2:getLevelComplete()
 	return levelComplete
 end
 
+function level2:setLevelComplete() 
+	levelComplete = false
+end
 
 function level2:update(dt, player, map, camera)
 	local isTalking = self.narrator:isOpen()
@@ -150,7 +153,7 @@ function level2:draw(player, map, camera)
 	map:drawLayer(map.layers["Foliage"])
 	
 
-
+	--Make player flash red when damaged
 	if (player:getDamageCooldown() > 0) then
 		local testVal = math.floor(10 * player:getDamageCooldown())
 		if (testVal % 4 == 0 or testVal % 4 == 1) then
@@ -176,6 +179,7 @@ function level2:draw(player, map, camera)
 	--Draw Enemies
 	for _, character in pairs(allLvl2Enemies) do
 		if (character.health >= 0) then
+			--Give enemies red tint for a moment when damaged
 			if (character.damagedSinceLastFrame and (character.damagedFrames <= character.damageTime)) then
 				love.graphics.setColor(1, 0, 0)
 				character.damagedFrames = character.damagedFrames + 1
@@ -193,13 +197,14 @@ function level2:draw(player, map, camera)
 
 	--If there is NPC nearby, detect that and open dialogue
 	if (nearbyNPC) then
-		nearbyNPC:drawInteractionPrompt()
-		love.graphics.print(nearbyNPC.name, 400, 400)
+		nearbyNPC:drawInteractionPrompt(player)
+		--love.graphics.print(nearbyNPC.name, 400, 400)
 	end
 
 	--Detatch camera for all this
 	camera:detach()
 
+	--Draw Healthbar
 	player:drawHealthBar()
 
 
@@ -209,6 +214,7 @@ function level2:draw(player, map, camera)
 
 end
 
+--Starts the level, call restart first if this is NOT the first time entering level
 function level2:startup()
 	-- 4. Play the background music immediately
 	bgMusic2:play()
@@ -217,6 +223,8 @@ function level2:startup()
 	narrator._boundNPCs = {}
 end
 
+
+--Resets everything, but doesn't actually reSTART the level, only puts everything where it should be
 function level2:restart()
 	--ReInitialize NPC list
 	allLvl2NPCs = {}
@@ -231,13 +239,8 @@ function level2:restart()
 	--Initialize Enemies
 	allLvl2Enemies = {}
 	table.insert(allLvl2Enemies, sharkKing.new('sprites/KingSharkSpriteSheet.png', 400, 400, 300, 300, 2000, "King Shark", 64, 32, "audio/sharkAttackSound.mp3", 4))
-	
-	bgMusic2:stop()
-	bgMusic2:play()
-	player:setX(200)
-	player:setY(400)
 
-
+	changeLevels = false;
 end
 
 

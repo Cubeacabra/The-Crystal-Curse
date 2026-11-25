@@ -87,8 +87,6 @@ function level1.new(map, camera, narrator)
 	end
 
 
-	narr2 = tostring(self.narrator)
-	list2 = tostring(self.narrator._boundNPCs)
 
 	return self
 end
@@ -198,7 +196,7 @@ function level1:draw(player, map, camera)
 		player:draw()
 	end
 
-	love.graphics.print(player:getDamageCooldown(), 400, 400)
+	--love.graphics.print(player:getDamageCooldown(), 400, 400)
 
 	--Draw NPCs
 	for _, character in pairs(allLvl1NPCs) do
@@ -233,7 +231,7 @@ function level1:draw(player, map, camera)
 
 	--If there is NPC nearby, detect that and open dialogue
 	if (nearbyNPC) then
-		nearbyNPC:drawInteractionPrompt()
+		nearbyNPC:drawInteractionPrompt(player)
 		--drawInteractionPrompt(nearbyNPC)
 	end
 
@@ -295,6 +293,8 @@ function level1:restart()
 	--Initialize Enemies
 	allLvl1Enemies = {}
 	table.insert(allLvl1Enemies, NPC.new('sprites/SharkSpriteSheet.png', 800, 550, 80, 0, 120, "Demo Shark", 64, 32, "audio/sharkAttackSound.mp3", 2))
+	
+	changeLevels = false
 
 	bgMusic:stop()
 	bgMusic:play()
