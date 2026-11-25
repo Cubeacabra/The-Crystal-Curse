@@ -255,13 +255,13 @@ function love.gamepadpressed(joystick, button)
 		end
 		gameState = "Playing"
 	elseif (gameState == "Victory" and (button == "a" or button == "b")) then
+		crystalCave:setLevelComplete()
+		crystalCave:toggleLevelDone()
 		currentLevel = lobsterVillage
 		currentMap = lobsterVillageMap
 		player:restart()
 		currentLevel:restart()
 		gameState = "Playing"
-		crystalCave:setLevelComplete()
-		--crystalCave:toggleLevelDone()
 	end
 
 end
